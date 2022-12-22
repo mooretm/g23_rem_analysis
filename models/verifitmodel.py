@@ -274,6 +274,9 @@ class VerifitModel:
     def _set_up_plot(self):
         """ Create empty plotting space for measured-target diffs
         """
+        # Set style
+        plt.style.use('seaborn-v0_8')
+
         # Create tick labels
         kHz = [x/1000 for x in self.desired_freqs]
         for ii in [0, 2, 4, 6, 8]:
@@ -322,10 +325,18 @@ class VerifitModel:
                 temp = self.diffs[(self.diffs['filename']==file) & (self.diffs['level']=='L' + str(ii))]
                 self.axs[ii-1,0].plot(temp['freq'], temp['measured-target'])
                 self.axs[ii-1,0].axhline(y=0, color='k')
+                self.axs[ii-1,0].set_ylim(
+                    np.min(self.diffs['measured-target']+(-5)),
+                    np.max(self.diffs['measured-target']+5)
+                ) 
 
                 temp = self.diffs[(self.diffs['filename']==file) & (self.diffs['level']=='R' + str(ii))]
                 self.axs[ii-1,1].plot(temp['freq'], temp['measured-target'])
                 self.axs[ii-1,1].axhline(y=0, color='k')
+                self.axs[ii-1,1].set_ylim(
+                    np.min(self.diffs['measured-target']+(-5)),
+                    np.max(self.diffs['measured-target']+5)
+                )
             
         # Calculate and plot grand average curve for each level
         # Get values at all freqs for a single level

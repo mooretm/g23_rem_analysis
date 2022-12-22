@@ -59,13 +59,14 @@ class G23Model:
         #if (not self.condition) and (not self.form_factor):
         #    pass
         #else:
-        # Only verifit files that have condition (BestFit/EndStudy)
+        # Only verifit files contain the condition (BestFit/EndStudy)
         self.verifit = self.verifit[
             self.verifit['filename'].str.contains(self.condition)]
 
-        # Only estat has form factor (could grab from verifit as well though?)
+        # Get form factor from estat file 
+        # (could grab from verifit as well though?)
         self.estat = self.estat[
-            self.estat['form_factor'].str.contains(self.form_factor)]
+            self.estat['form_factor'] == self.form_factor]
 
 
     def _match_subs(self):

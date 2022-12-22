@@ -12,6 +12,7 @@ matplotlib = "*"
 sounddevice = "*"
 soundfile = "*"
 lxml = "*"
+statsmodels = "*"
 
 [dev-packages]
 
