@@ -36,9 +36,11 @@ rcParams.update({'figure.autolayout': True})
 # Verfit data
 _verifit_path = '//starfile/Public/Temp/CAR Group/G23 Validation/Verifit'
 _verifit_path = 'C:/Users/MooTra/OneDrive - Starkey/Desktop/Verifit'
-v = verifitmodel.VerifitModel(_verifit_path)
+#v = verifitmodel.VerifitModel(_verifit_path)
+v = verifitmodel.VerifitModel(path=_verifit_path, test_type='on-ear', num_curves=1)
+v.get_all()
 v.get_diffs()
-v.plot_diffs()
+v.plot_diffs(data=v.diffs)
 
 # Estat data
 _estat_path = r'\\starfile\Public\Temp\CAR Group\G23 Validation\Estat'
@@ -62,8 +64,8 @@ g = g23model.G23Model(v.diffs, e.estat_targets_long, 'BestFit', 'ITE')
 g.get_data()
 
 # Assign verifitmodel public attribute to the e-STAT to SPL data
-v.diffs = g.all_data
-v.plot_diffs(title=f"Measured SPL minus e-STAT Target ({g.form_factor})")
+#v.diffs = g.all_data
+v.plot_diffs(data=g.all_data, title=f"Measured SPL minus e-STAT Target ({g.form_factor})")
 
 
-print(g.all_data[g.all_data['filename']=='P0700'][['filename', 'freq', 'level', 'estat_target']])
+#print(g.all_data[g.all_data['filename']=='P0700'][['filename', 'freq', 'level', 'estat_target']])

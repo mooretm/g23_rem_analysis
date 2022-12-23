@@ -1,10 +1,7 @@
-""" Class for analysis data from the Speech Task Controller
-
-    Gather all data, organize, analyze, plot.
+""" Class to hold and organzie MedRX data pulled from tech toolbox
 
     Written by: Travis M. Moore
-    Created: Dec 06, 2022
-    Last edited: Dec 20, 2022
+    Last edited: Dec 23, 2022
 """
 
 ###########
@@ -79,7 +76,7 @@ class MedRXModel:
         self.bestfit['L2-Target'] = self.bestfit['L2'] - self.bestfit['target_L2']
         self.bestfit['R2-Target'] = self.bestfit['R2'] - self.bestfit['target_R2']
         self.bestfit.reset_index(inplace=True)
-        self.bestfit.to_csv('bestfit_medrx.csv', index=False)
+        self.bestfit.to_csv('./G23 REM Data/medrx_bestfit.csv', index=False)
         
         # ENDSTUDY
         self.endstudy = self.data[['filename', 'style', 'freq', 'side', 'target_2', 'end_1', 'end_2', 'end_3']]
@@ -89,7 +86,7 @@ class MedRXModel:
         self.endstudy['L2-Target'] = self.endstudy['L2'] - self.endstudy['target_L2']
         self.endstudy['R2-Target'] = self.endstudy['R2'] - self.endstudy['target_R2']
         self.endstudy.reset_index(inplace=True)
-        self.endstudy.to_csv('endstudy_medrx.csv', index=False)
+        self.endstudy.to_csv('./G23 REM Data/medrx_endstudy.csv', index=False)
 
 
     def _to_long_format(self, df):
