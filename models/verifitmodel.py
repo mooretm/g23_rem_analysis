@@ -138,20 +138,11 @@ class VerifitModel:
                 for num in range(1, self.num_curves+1):
                     # Left
                     sii_dict['sii_L' + str(num)] = self.root.find(f"./test[@side='left']/data[@internal='map_{self.test_type}_sii{str(num)}']").text
-                    #sii_dict['sii_L1'] = float(self.root.find("./test[@side='left']/data[@internal='map_rear_sii1']").text)
-                    #sii_dict['sii_L2'] = float(self.root.find("./test[@side='left']/data[@internal='map_rear_sii2']").text)
-                    #sii_dict['sii_L3'] = float(self.root.find("./test[@side='left']/data[@internal='map_rear_sii3']").text)
-                    #sii_dict['sii_L4'] = float(self.root.find("./test[@side='left']/data[@internal='map_rear_sii4']").text)
                     # Right
                     sii_dict['sii_L' + str(num)] = self.root.find(f"./test[@side='right']/data[@internal='map_{self.test_type}_sii{str(num)}']").text
-                    #sii_dict['sii_R1'] = float(self.root.find("./test[@side='right']/data[@internal='map_rear_sii1']").text)
-                    #sii_dict['sii_R2'] = float(self.root.find("./test[@side='right']/data[@internal='map_rear_sii2']").text)
-                    #sii_dict['sii_R3'] = float(self.root.find("./test[@side='right']/data[@internal='map_rear_sii3']").text)
-                    #sii_dict['sii_R4'] = float(self.root.find("./test[@side='right']/data[@internal='map_rear_sii4']").text)
             except AttributeError as e:
                 print(e)
                 print(f"\nverifitmodel: {self.filename} is missing SII data!\n")
-                #exit()
 
             sii_list.append(pd.DataFrame(sii_dict, index=[str(self.filename)]))
 
@@ -179,16 +170,10 @@ class VerifitModel:
                 for num in range(1, self.num_curves+1):
                     # Left MEASURED spls
                     spls_dict['spl_L' + str(num)] = self.root.find(f"./test[@side='left']/data[@internal='map_{self.test_type}spl{str(num)}']").text
-                    #spls_dict['spl_L2'] = self.root.find("./test[@side='left']/data[@internal='map_rearspl2']").text
-                    #spls_dict['spl_L3'] = self.root.find("./test[@side='left']/data[@internal='map_rearspl3']").text
-                    
                     # Right MEASURED spls
                     spls_dict['spl_R' + str(num)] = self.root.find(f"./test[@side='right']/data[@internal='map_{self.test_type}spl{str(num)}']").text
-                    #spls_dict['spl_R2'] = self.root.find("./test[@side='right']/data[@internal='map_rearspl2']").text
-                    #spls_dict['spl_R3'] = self.root.find("./test[@side='right']/data[@internal='map_rearspl3']").text
             except AttributeError:
                 print(f"\nverifitmodel: {self.filename} is missing MEASURED REM data!\n")
-                #exit()
 
             # Split numbers into list
             for key in spls_dict:
@@ -226,15 +211,10 @@ class VerifitModel:
                 for num in range(1, self.num_curves+1):
                     # Left TARGET spls
                     target_dict['target_L' + str(num)] = self.root.find(f"./test[@side='left']/data[@internal='map_{self.test_type}_targetspl{str(num)}']").text
-                    #target_dict['target_L2'] = self.root.find("./test[@side='left']/data[@internal='map_rear_targetspl2']").text
-                    #target_dict['target_L3'] = self.root.find("./test[@side='left']/data[@internal='map_rear_targetspl3']").text
                     # Right TARGET spls
                     target_dict['target_R' + str(num)] = self.root.find(f"./test[@side='right']/data[@internal='map_{self.test_type}_targetspl{str(num)}']").text
-                    #target_dict['target_R2'] = self.root.find("./test[@side='right']/data[@internal='map_rear_targetspl2']").text
-                    #target_dict['target_R3'] = self.root.find("./test[@side='right']/data[@internal='map_rear_targetspl3']").text
             except AttributeError:
                 print(f"\nverifitmodel: {self.filename} is missing TARGET REM data!\n")
-                #exit()
 
             # Split numbers into list
             for key in target_dict:
@@ -454,6 +434,8 @@ class VerifitModel:
             target SPLs
         """
         labels = kwargs
+        save_title = kwargs.get('save_title', 'diff_plot.png')
+        
         self._set_up_plot(**labels)
         if not title:
             self.fig.suptitle('Measured SPLs - NAL-NL2 Target SPLs')
@@ -520,8 +502,11 @@ class VerifitModel:
                 vals_by_freq = temp.groupby(['freq'])['measured-target'].mean()
                 self.axs[1].plot(temp['freq'].unique(), vals_by_freq, 'ko')
 
+        if show:
+            plt.show()
+
         if save:
             plt.savefig(labels['save_title'])
         
-        if show:
-            plt.show()
+        # Close plot to avoid overflow with multiple calls
+        plt.close()

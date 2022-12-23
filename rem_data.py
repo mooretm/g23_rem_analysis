@@ -12,60 +12,99 @@
 
     Written by: Travis M. Moore
     Created: Nov 17, 2022
-    Last edited: Dec 08, 2022
+    Last edited: Dec 23, 2022
 """
 
 ###########
 # Imports #
 ###########
-# Import custom modules
-from models import verifitmodel
-from models import estatmodel
-from models import medrxmodel
-from models import g23model
-
-# Import plotting modules
+# Import plotting packages
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
+
+# Import data science packages
+import pandas as pd
+
+# Import custom modules
+from models import verifitmodel
+from models import estatmodel
+from models import g23model
 
 
 ##########################
 # Fetch Data from Models #
 ##########################
 # Verfit data
-_verifit_path = '//starfile/Public/Temp/CAR Group/G23 Validation/Verifit'
+#_verifit_path = '//starfile/Public/Temp/CAR Group/G23 Validation/Verifit'
 _verifit_path = 'C:/Users/MooTra/OneDrive - Starkey/Desktop/Verifit'
-#v = verifitmodel.VerifitModel(_verifit_path)
-v = verifitmodel.VerifitModel(path=_verifit_path, test_type='on-ear', num_curves=1)
+v = verifitmodel.VerifitModel(path=_verifit_path, test_type='on-ear', num_curves=3)
 v.get_all()
 v.get_diffs()
-v.plot_diffs(data=v.diffs)
 
 # Estat data
-_estat_path = r'\\starfile\Public\Temp\CAR Group\G23 Validation\Estat'
-_verifit_path = 'C:/Users/MooTra/OneDrive - Starkey/Desktop/Estat'
+#_estat_path = r'\\starfile\Public\Temp\CAR Group\G23 Validation\Estat'
+_estat_path = 'C:/Users/MooTra/OneDrive - Starkey/Desktop/Estat'
 e = estatmodel.Estatmodel(_estat_path)
 e._to_long_format()
+
+# Form factor by subject key
+x = pd.read_csv(_verifit_path + '/form_key.csv')
+form_key = x.set_index('PID').transpose().to_dict()
+
+# Provide some feedback to console 
+print(f"Length of Verifit dataframe: {len(v.diffs)}")
+print(f"Length of Verifit BestFit: {len(v.diffs[v.diffs['filename'].str.contains('BestFit')])}")
+print(f"Length of Verifit EndStudy: {len(v.diffs[v.diffs['filename'].str.contains('EndStudy')])}")
+print(f"Length of eSTAT dataframe: {len(e.estat_targets_long)}")
+
+
+#####################
+# Plot Verifit Data #
+#####################
+# Plot each form factor on separate plot
+# data, title=None, show=None, save=None, **kwargs
+
+# v_best = v.diffs[v.diffs['filename']]
+# labels = ['bestfit', 'endstudy']
+
+# for ii, df in enumerate(dfs):
+#     form_factors = df['style'].unique()
+#     for form in form_factors:
+#         plot_labels['save_title'] = f"./G23 REM Data/MedRX_{labels[ii]}_{form}.png"
+#         vals = df[df['style']==form]
+#         v.plot_diffs(
+#             data=vals, 
+#             title=f"Measured eSTAT minus NAL-NL2 ({form}: {labels[ii]})",
+#             show=1,
+#             save=None,
+#         )
 
 
 ######################
 # Specify Conditions #
 ######################
-# NOTE: Need to add a way to produce all plots at once, rather than 
-# waiting for all the data to load each time. 
+bestfit = g23model.G23Model(v.diffs, e.estat_targets_long, form_key, "BestFit")
+bestfit.get_data()
+bestfit.final_data.to_csv('./G23 REM Data/estat_bestfit.csv', index=False)
 
-# NOTE: Need to make a plot for the average difference across all 
-# form factors.
+endstudy = g23model.G23Model(v.diffs, e.estat_targets_long, form_key, "EndStudy")
+endstudy.get_data()
+endstudy.final_data.to_csv('./G23 REM Data/estat_endstudy.csv', index=False)
 
-#forms = ['RIC', 'mRIC', 'ITE', 'IIC', 'CIC', 'IIC']
-#for ii in forms:
-g = g23model.G23Model(v.diffs, e.estat_targets_long, 'BestFit', 'ITE')
-g.get_data()
+plot_labels = {'save_title': ''}
 
-# Assign verifitmodel public attribute to the e-STAT to SPL data
-#v.diffs = g.all_data
-v.plot_diffs(data=g.all_data, title=f"Measured SPL minus e-STAT Target ({g.form_factor})")
-
-
-#print(g.all_data[g.all_data['filename']=='P0700'][['filename', 'freq', 'level', 'estat_target']])
+dfs = [bestfit, endstudy]
+labels = ['BestFit', 'EndStudy']
+forms = ['RIC', 'MRIC', 'ITE', 'ITC', 'CIC', 'IIC']
+for ii, df in enumerate(dfs):
+    for form in forms:
+        temp = df.final_data[df.final_data['form_factor']==form]
+        plot_labels['save_title'] = f"./G23 REM Data/eSTAT_{labels[ii]}_{form}.png"
+        v.plot_diffs(
+            data=temp, 
+            title=f"Measured SPL minus e-STAT Target ({form}: {labels[ii]})",
+            show=None,
+            save=1,
+            **plot_labels
+            )

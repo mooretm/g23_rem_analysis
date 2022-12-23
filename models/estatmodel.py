@@ -157,6 +157,7 @@ class Estatmodel:
             ####################################
 
         self.estat_targets = pd.concat(df_list)
+        self.estat_targets['form_factor'] = self.estat_targets['form_factor'].str.upper()
         print("estatmodel: Completed!\n")
 
 
